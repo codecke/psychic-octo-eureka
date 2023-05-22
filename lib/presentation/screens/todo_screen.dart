@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:todo/presentation/router.dart';
-import 'package:todo/constants/strings.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:todo/cubit/todos_cubit.dart';
 import 'package:todo/presentation/screens/add_todo_screen.dart';
+
+import '../../data/models/todo.dart';
 
 class TodoScreen extends StatelessWidget {
   const TodoScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    BlocProvider.of<TodosCubit>(context).fetchTodos();
+    {}
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.purple,
@@ -17,7 +22,7 @@ class TodoScreen extends StatelessWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => AddTodoScreen(),
+                builder: (context) => const AddTodoScreen(),
               ),
             ),
             child: const Padding(
@@ -27,7 +32,39 @@ class TodoScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(child: Text('Todo screen')),
+      body: BlocBuilder<TodosCubit, TodosState>(
+        builder: (context, state) {
+          if (state is! TodosLoaded) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final todos = (state as TodosLoaded).todos;
+          return SingleChildScrollView(
+            child: Column(children: [
+              todos.map((e) => _todo(e)).toList(),
+            ]),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _todo(Todo todo, context) {
+    return Dismissible(
+      key: key!,
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 20.0),
+        decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              bottom: BorderSide(color: Colors.grey),
+            )),
+        child: Row(
+          children: [
+            Text(),
+          ],
+        ),
+      ),
     );
   }
 }
